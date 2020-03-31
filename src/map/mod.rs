@@ -89,35 +89,40 @@ pub struct Map {
         mesh
     }
 
-    fn nearest_collision(collisions: Vec<Option<RayIntersection<f32>>>) -> Option<RayIntersection<f32>> {
+    fn nearest_collision(collisions: Vec<(Option<RayIntersection<f32>>, &Wall)>) -> Option<(RayIntersection<f32>, &Wall)> {
         collisions
             .iter()
-            .filter(|op| op.is_some())
-            .map(|op| op.unwrap())
-            .filter(|inter| inter.toi < MAX_TOI)
-            .fold(None, |acc, v| {
-                if acc.is_none() {
-                    Some(v)
-                } else if v.toi < acc.unwrap().toi {
-                    Some(v)
+            .filter(|(op, _)| op.is_some())
+            .map(|(op, w)| (op.unwrap(), w))
+            .filter(|(inter, _)| inter.toi < MAX_TOI)
+            .fold(None, |acc, (v, w)| {
+                if let Some((accv, _)) = acc {
+                    if v.toi < accv.toi {
+                        Some((v, w))
+                    } else {
+                        None
+                    }
                 } else {
-                    acc
+                    Some((v, w))
                 }
             })
     }
 
-    pub fn ray_collides_with(&self, ray: &Ray<f32>, m: &Isometry<f32>) -> Option<RayIntersection<f32>> {
-        let mut collisions: Vec<Option<RayIntersection<f32>>> = vec![];
+    pub fn ray_collides_with(&self, ray: &Ray<f32>, m: &Isometry<f32>) -> Option<(RayIntersection<f32>, &Wall)> {
+        let mut collisions: Vec<(Option<RayIntersection<f32>>, &Wall)> = vec![];
         for wall in self.walls.iter() {
             collisions.push(
-                wall
+                (
+                    wall
                     .to_internal()
                     .toi_and_normal_with_ray(
                         m,
                         ray,
                         MAX_TOI,
                         true, // TODO: Test true/false for speed / accuracy
-                    )
+                    ),
+                    wall
+                )
             )
         }
 

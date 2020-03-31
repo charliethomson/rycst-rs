@@ -12,9 +12,10 @@ use ncollide2d::{
     shape::Polyline,
 };
 
+#[derive(Clone)]
 pub struct Wall {
     internal: Polyline<f32>,
-    color: Color,
+    pub color: Color,
 } impl Wall {
     pub fn new(points: Vec<NPoint<f32>>, col: Color) -> Self {
         Self {

@@ -41,6 +41,8 @@ pub struct Renderer {
         let map = Map::debug();
         let (x, y) = map.dims();
         let camera = Ray::new( NPoint::new(0.1 * x, 0.8 * y), Vector::new_random() );
+        eprintln!("{}", camera.dir);
+        eprintln!("angle: {}", camera.x());
         Self {
             camera,
             map,
@@ -97,7 +99,7 @@ pub struct Renderer {
             let cast_iso = Isometry::rotation(offset_angle);
             
             match self.map.ray_collides_with(&ray, &cast_iso) {
-                Some(intersection) => {
+                Some((intersection, with_wall)) => {
                     // map the TOI to the height of the sector
                     let RayIntersection { toi, .. } = intersection;
                     let sector_height = Self::remap(toi, 0.0, MAX_TOI, 0.0, window.height);
@@ -115,7 +117,7 @@ pub struct Renderer {
                     let sector = Shape::rect(tl, sector_width, sector_height);
                     
                     // add the sector to the mesh
-                    mesh.fill(sector, Color::WHITE); // TODO: implement colors for the walls and such
+                    mesh.fill(sector, with_wall.color); 
                 },
                 None => (),
             }

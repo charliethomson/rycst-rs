@@ -79,7 +79,7 @@ pub struct Engine {
         //     eprintln!("{}", dx);
         //     self.renderer.rotate(dx);
         // }
-        eprintln!("renderer angle: {:?}", self.renderer.angle());
+        // eprintln!("renderer angle: {:?}", self.renderer.angle());
 
 
 
