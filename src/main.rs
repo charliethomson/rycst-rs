@@ -1,15 +1,22 @@
 
 
-mod engine;
-mod player;
-mod vec2d;
+mod map;
+mod input;
 mod config;
-mod direction;
+mod engine;
+mod render;
+mod player;
 
-use engine::Engine;
+use coffee::graphics::WindowSettings;
+use coffee::Game;
+use coffee::Result;
+use crate::config::{ WIDTH, HEIGHT };
 
-fn main()  {
-    let mut engine = Engine::new();
-
-    engine.enter_loop();
+fn main() -> Result<()> {
+    engine::Engine::run(WindowSettings {
+        title: "Raycast dot are ess :)".to_owned(),
+        size: (WIDTH, HEIGHT),
+        resizable: false,
+        fullscreen: false,
+    })
 }

@@ -1,7 +1,10 @@
 
-// Player initial position
-pub const P_IP: (f64, f64) = (0.0, 0.0);
-// Player render distance
-pub const P_RD: f64 = 1000.0;
-// Player move speed
-pub const P_MS: f64 = 50.0;
+// TODO: Tweak this to be correct
+pub const MAX_TOI: f32 = 100.0;
+
+pub const WIDTH: u32 = 800;
+pub const HEIGHT: u32 = 800;
+
+pub const RENDER_FOV: f32 = 120.0;
+// Number of rays to cast in RENDER_FOV degrees
+pub const RENDER_RESOLUTION: f32 = 120.0;
