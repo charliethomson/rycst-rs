@@ -7,6 +7,8 @@ use crate::config::{
     MAX_TOI,
     RENDER_FOV,
     RENDER_RESOLUTION,
+    WIDTH, 
+    HEIGHT
 };
 
 
@@ -36,9 +38,12 @@ pub struct Renderer {
     map: Map,
 } impl Renderer {
     pub fn new() -> Self {
+        let map = Map::debug();
+        let (x, y) = map.dims();
+        let camera = Ray::new( NPoint::new(0.1 * x, 0.8 * y), Vector::new_random() );
         Self {
-            camera: Ray::new( NPoint::origin(), Vector::new_random() ),
-            map: Map::debug(),
+            camera,
+            map,
         }
     }
 

@@ -13,14 +13,14 @@ use std::{
     fs::File,
     path::Path,
     io::Read,
-    collections::HashMap,
-    convert::TryInto,
 };
 
 use ncollide2d::{
-    math::Point as NPoint,
+    math::{
+        Point as NPoint,
+        Isometry,
+    },
     query::{ Ray, RayCast, RayIntersection, },
-    math::Isometry,
 };
 
 pub struct Map {
@@ -90,35 +90,20 @@ pub struct Map {
     }
 
     fn nearest_collision(collisions: Vec<Option<RayIntersection<f32>>>) -> Option<RayIntersection<f32>> {
-        let mut cols: HashMap<i128, RayIntersection<f32>> = HashMap::new();
-        for col in collisions {
-            if let Some(col) = col {
-                
-                let RayIntersection { toi, .. } = col;
-                cols.insert(
-                    toi.round() as i128,
-                    col,
-                );
-            } else { continue }
-        }
-
-        if cols.is_empty() {
-            None
-        } else {
-            let key = cols.iter().fold(/* min */ std::i128::MAX, |min, cur| {
-                if *cur.0 < min {
-                    *cur.0
+        collisions
+            .iter()
+            .filter(|op| op.is_some())
+            .map(|op| op.unwrap())
+            .filter(|inter| inter.toi < MAX_TOI)
+            .fold(None, |acc, v| {
+                if acc.is_none() {
+                    Some(v)
+                } else if v.toi < acc.unwrap().toi {
+                    Some(v)
                 } else {
-                    min
+                    acc
                 }
-            });
-
-            if let Some(rf) = cols.get(&key) {
-                Some(rf.clone())
-            } else {
-                None
-            }
-        }
+            })
     }
 
     pub fn ray_collides_with(&self, ray: &Ray<f32>, m: &Isometry<f32>) -> Option<RayIntersection<f32>> {
