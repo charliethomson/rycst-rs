@@ -14,21 +14,23 @@ use coffee::{
         Color,
         Rectangle,
     },
-    input::{ Input, KeyboardAndMouse },
+    input::{ 
+        keyboard::KeyCode,
+        ButtonState,
+    },
     ui::Text,
 };
+
 use crate::{
     input::InputHandler,
-    player::Player,
     render::{ Renderer, ShapeExt },
+    util::Direction,
 };
 
 
 pub struct Engine {
 
-    player: Player,
     renderer: Renderer,
-    input: InputHandler,
 
 } impl Game for Engine {
 
@@ -40,69 +42,59 @@ pub struct Engine {
             // TODO: Add options, possibly a load / save menu, map making tool
         
             Self {
-                player: Player {},
                 renderer: Renderer::new(),
-                input: InputHandler::new(),
             }
         )
     }
 
-    fn draw(&mut self, _frame: &mut Frame, _timer: &Timer) {
-        _frame.clear(Color::BLACK);
-        // let rects = vec![
-        //     Shape::rect(Point::new(100.0, 100.0), 100.0, 100.0),
-        //     Shape::rect(Point::new(600.0, 100.0), 100.0, 100.0),
-        //     Shape::rect(Point::new(600.0, 600.0), 100.0, 100.0),
-        //     Shape::rect(Point::new(100.0, 600.0), 100.0, 100.0),
-        // ];
-
-        // let mut mesh = coffee::graphics::Mesh::new();
-
-        // for rect in rects.iter().cloned() {
-        //     if let Shape::Rectangle(r) = rect {
-        //         let col = if r.contains(self.input.mouse_pos) {
-        //             if self.input.mouse.get(&coffee::input::mouse::Button::Left) == Some(&coffee::input::ButtonState::Pressed) {
-        //                 Color::from_rgb(0, 255, 0)
-        //             } else {
-        //                 Color::from_rgb(0, 0, 255)
-        //             }
-        //         } else {
-        //             Color::from_rgb(255, 0, 0)
-        //         };
-        //         mesh.fill(rect, col)
-        //     }
-        // }
-
-        // mesh.draw(&mut _frame.as_target());
-
-        // if let Some((dx, _)) = self.input.mouse_moved {
-        //     eprintln!("{}", dx);
-        //     self.renderer.rotate(dx);
-        // }
-        // eprintln!("renderer angle: {:?}", self.renderer.angle());
-
-
+    fn draw(&mut self, frame: &mut Frame, _timer: &Timer) {
+        frame.clear(Color::BLACK);
 
         let scene = self.renderer.render(&Rectangle {
-            x: 0.0, 
-            y: 0.0,
-            width: 800.0,
-            height: 800.0,
+            x: 100.0,
+            y: 100.0,
+            width: 400.0,
+            height: 400.0,
         });
 
-        scene.draw(&mut _frame.as_target());
+        scene.draw(&mut frame.as_target());
+
 
         let map = self.renderer.render_top_down(&Rectangle {
             x: 10.0,
             y: 10.0, 
-            width: 200.0,
-            height: 200.0,
+            width: 190.0,
+            height: 190.0,
         });
-        map.draw(&mut _frame.as_target());
+
+        map.draw(&mut frame.as_target());
 
     }
 
     fn interact(&mut self, input: &mut InputHandler, _window: &mut Window) {
-        self.input = input.clone();
+        if input.is_pressed(&KeyCode::W) {
+            self.renderer.mv(Direction::Forward);
+        }
+        
+        if input.is_pressed(&KeyCode::A) {
+            self.renderer.mv(Direction::Left);
+        }
+        
+        if input.is_pressed(&KeyCode::S) {
+            self.renderer.mv(Direction::Backward);
+        }
+        
+        if input.is_pressed(&KeyCode::D) {
+            self.renderer.mv(Direction::Right);
+        }
+
+        if input.is_pressed(&KeyCode::Right) {
+            self.renderer.rotate(Direction::Right);
+        }
+        
+        if input.is_pressed(&KeyCode::Left) {
+            self.renderer.rotate(Direction::Left);
+        }
+        
     }
 }

@@ -5,7 +5,7 @@ mod input;
 mod config;
 mod engine;
 mod render;
-mod player;
+mod util;
 
 use coffee::graphics::WindowSettings;
 use coffee::Game;

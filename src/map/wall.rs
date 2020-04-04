@@ -7,6 +7,8 @@ use coffee::graphics::{
     Color,
 };
 
+use crate::util::remap;
+
 use ncollide2d::{
     math::Point as NPoint,
     shape::Polyline,
@@ -24,13 +26,19 @@ pub struct Wall {
         }
     }
 
-    pub fn draw_to_mesh(&self, mesh: &mut Mesh, window: &Rectangle<f32>) {
-        mesh.stroke(Shape::Polyline {
-                points: self.points().iter().map(|point| Point::new(point.x + window.x, point.y + window.y)).collect(),
-            },
-            self.color,
-            2,    
-        );
+    pub fn map_into(&self, minmax: (i64, i64), rect: &Rectangle<f32>) -> Vec<Point> {
+
+        self.points()
+            .iter()
+            .map(|point| (point.x, point.y))
+            .map(|(x, y)| {
+                let (mx, my) = minmax;
+                Point::new(
+                    remap(x, 0.0, mx as f32, rect.x, rect.width),
+                    remap(y, 0.0, my as f32, rect.y, rect.height),
+                )
+            }).collect()
+
     }
 
     pub fn to_internal(&self) -> Polyline<f32> {
@@ -39,5 +47,9 @@ pub struct Wall {
 
     pub fn points(&self) -> Vec<Point> {
         self.internal.points().iter().map(|np| Point::new(np.x, np.y)).collect()
+    }
+
+    pub fn npoints(&self) -> Vec<NPoint<f32>> {
+        self.internal.points().to_vec()
     }
 }
