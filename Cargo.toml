@@ -9,8 +9,6 @@ edition = "2018"
 [dependencies]
 sdl2 = {version = "0.34.5", features = [ 'ttf']}
 rand = "*"
-line_intersection = "0.4.0"
-geo = "0.4.13"
 num-traits = "0.1.43"
 factor = "0.4.0"
 lazy_static = "1.4.0"

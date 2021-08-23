@@ -21,28 +21,7 @@ enum ControlFlow {
     Break,
 }
 
-lazy_static! {
-    pub static ref INTERVAL: usize = {
-        let width_factors = factor(WINDOW_WIDTH as i64);
-        let height_factors = factor(WINDOW_HEIGHT as i64);
-
-        let common_factors: Vec<i64> = width_factors
-            .into_iter()
-            .filter(|current| height_factors.contains(current))
-            .collect();
-        common_factors[3 * common_factors.len() / 4] as usize
-    };
-}
-
-pub fn get_canvas_size(canvas: &Canvas<Window>) -> (u32, u32) {
-    let (w, h) = canvas.window().size();
-    let (sw, sh) = canvas.scale();
-    (
-        ((w as f32) * (1. / sw)) as u32,
-        ((h as f32) * (1. / sh)) as u32,
-    )
-}
-
+// TODO: Add tickrate
 #[allow(unused)]
 struct AppConfig {
     max_fps: Option<u8>,
@@ -81,6 +60,7 @@ impl Default for AppConfig {
     }
 }
 
+// TODO: Migrate synchronous update -> render loop to asynchronous update & render loops, polling at separate rates defined by the cfg
 pub struct App {
     canvas: Canvas<Window>,
     event_pump: EventPump,
@@ -98,6 +78,7 @@ impl App {
         let window = video_subsystem
             .window("raycasting", WINDOW_WIDTH, WINDOW_HEIGHT)
             .position_centered()
+            .fullscreen()
             .opengl()
             .build()
             .map_err(|e| e.to_string())?;
@@ -114,7 +95,7 @@ impl App {
             canvas,
             event_pump,
             state,
-            cfg: AppConfig::default().set_max_fps(144),
+            cfg: AppConfig::default().set_max_fps(144), // .show_fps_counter(false),
         })
     }
 
@@ -126,19 +107,16 @@ impl App {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => return ControlFlow::Break,
+
                 Event::KeyUp {
                     keycode: Some(keycode),
                     ..
-                } => {
-                    self.state.key_up(keycode);
-                }
+                } => self.state.keys.release(keycode),
 
                 Event::KeyDown {
                     keycode: Some(keycode),
                     ..
-                } => {
-                    self.state.key_down(keycode);
-                }
+                } => self.state.keys.press(keycode),
 
                 Event::MouseMotion { xrel, .. } => self.state.mouse_motion(xrel),
 
